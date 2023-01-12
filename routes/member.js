@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const db = require(__dirname + '/../modules/db_connect');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
+// 測試api
 router.get('/login/api', async (req, res)=> {
     const sql = 'SELECT * FROM member WHERE sid = 1';
     const [rows] = await db.query(sql);
@@ -22,8 +24,11 @@ router.post('/login/api', async (req, res)=> {
     const sql = 'SELECT * FROM member WHERE email = ?';
 
     const [rows] = await db.query(sql, req.body.email);
+
     if(rows[0]?.password) {
-        if(rows[0].password === req.body.password) {
+        const pwValidate = await bcrypt.compare(req.body.password, rows[0].password);
+
+        if(pwValidate) {
             const token = jwt.sign({member_sid: rows[0].sid}, process.env.JWT_SECRET)
             output =  {
                 success: true,
@@ -50,18 +55,30 @@ router.post('/register/api', async (req, res) => {
             error: '參數不足',
         }
     } else { 
-        const sql = `INSERT INTO member (email, password, nickname, birthday) VALUES (?, ?, ?, ?)`;
-        const [rows] = await db.query (sql, [
-            req.body.email,
-            req.body.password,
-            req.body.nickname || '',
-            req.body.birthday || null,
-        ])
-        output = {
-            ...output,
-            success: true,
-            error: '',
+        const e_sql = `SELECT * FROM member WHERE email = ?`
+        const [e_rows] = await db.query(e_sql, req.body.email)
+        if (! e_rows[0]) {
+            const pw = await bcrypt.hash(req.body.password, 10);
+            const sql = `INSERT INTO member (email, password, nickname, birthday) VALUES (?, ?, ?, ?)`;
+            const [rows] = await db.query (sql, [
+                req.body.email,
+                pw,
+                req.body.nickname || '',
+                req.body.birthday || null,
+            ])
+            output = {
+                ...output,
+                success: true,
+                error: '',
+            }
+        } else {
+            output = {
+                ...output,
+                success: false,
+                error: '重複email',
+            }
         }
+
     }
     console.log(output);
     res.json(output);
