@@ -1,24 +1,27 @@
+// 環境變數
 require('dotenv').config();
 const express = require('express');
 const app = express();
 const db = require('./modules/db_connect');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-
-// 解析 body
 const myParser = require('body-parser');
 
+
+// 解析 body
 app.use(myParser.json());
-app.use(myParser.urlencoded({ extend: false}));
+app.use(myParser.urlencoded({ extended: false}));
 
 //白名單
 const corsOptions = {
     credentials: true,
     origin: function (origin, callback) {
-        console.log(origin, callback);
-        callback(null, true);
+      // console.log({ origin: origin });
+    callback(null, true);
     },
-};
+  }
+
+app.use(cors(corsOptions));
 
 //靜態資料夾
 app.use(express.static('public'));
@@ -29,6 +32,8 @@ app.use(async (req, res, next) => {
     let auth = req.get("Authorization");
 
     //待補上
+
+    next();
 })
 // router
 // 首頁
