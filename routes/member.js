@@ -42,10 +42,6 @@ router.post('/register/api', async (req, res) => {
     let output = {
         success: false,
         error: '',
-        email: '',
-        password: '',
-        nickname: '',
-        birthday: '',
     };
 
     if(!req.body.email || !req.body.password) {
@@ -53,8 +49,19 @@ router.post('/register/api', async (req, res) => {
             ...output,
             error: '參數不足',
         }
-    } else if ((req.body.birthday) === '0000-00-00') {
-        
+    } else { 
+        const sql = `INSERT INTO member (email, password, nickname, birthday) VALUES (?, ?, ?, ?)`;
+        const [rows] = await db.query (sql, [
+            req.body.email,
+            req.body.password,
+            req.body.nickname || '',
+            req.body.birthday || null,
+        ])
+        output = {
+            ...output,
+            success: true,
+            error: '',
+        }
     }
     console.log(output);
     res.json(output);
