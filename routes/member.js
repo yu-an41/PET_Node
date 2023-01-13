@@ -16,6 +16,7 @@ router.post('/login/api', async (req, res)=> {
     let output = {
         success: false,
         error: '',
+        member_sid: 0,
         nickname: '',
         token: '',
     };
@@ -32,7 +33,6 @@ router.post('/login/api', async (req, res)=> {
             const token = jwt.sign({member_sid: rows[0].sid}, process.env.JWT_SECRET)
             output =  {
                 success: true,
-                error: '',
                 member_sid: rows[0].sid,
                 nickname: rows[0].nickname,
                 token: token,
