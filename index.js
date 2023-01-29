@@ -44,6 +44,7 @@ app.get('/', (req, res) => {
 // 其他路由
 app.use('/member', require(__dirname + '/routes/member'))
 app.use('/products', require(__dirname + '/routes/products'))
+app.use('/cart', require(__dirname + '/routes/cart'))
 
 // 404
 app.use((req, res) => {
