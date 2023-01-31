@@ -1,14 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require(__dirname + '/../modules/db_connect');
+const db = require(__dirname + "/../modules/db_connect");
 
-router.get('/list/api', async (req, res)=> {
-    // const sql = `SELECT * FROM products JOIN product_categories ON products.category = product_categories.sid WHERE on_sale = 1`;
-    const sql = `SELECT * FROM products WHERE on_sale = 1`;
+router.get("/list/api", async (req, res) => {
+  const { prodCate } = req.query;
+  const where = +prodCate ? `&& pc.parent_sid =${prodCate}` : "";
 
-    const [rows] = await db.query(sql);
-    // console.log({rows});
-    res.json(rows);
-})
+  const sql = `SELECT p.* FROM products p JOIN product_categories pc ON p.category = pc.sid WHERE on_sale = 1 ${where}`;
+  console.log(sql);
+
+  const [rows] = await db.query(sql);
+  // console.log({rows});
+  res.json(rows);
+});
 
 module.exports = router;
