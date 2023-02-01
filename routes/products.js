@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require(__dirname + "/../modules/db_connect");
 
 router.get("/list/api", async (req, res) => {
-  const { prodCate, page } = req.query;
+  const { category, page } = req.query;
 
   // 分頁參數設定
   const perPage = 20;
@@ -12,7 +12,7 @@ router.get("/list/api", async (req, res) => {
 
   // 產品分類條件
   let where = `WHERE on_sale = 1 `;
-  where += +prodCate ? `&& pc.parent_sid =${prodCate}` : "";
+  where += +category ? `&& pc.parent_sid =${category}` : "";
 
   // 總共筆數&頁數
   const sql_count = `SELECT COUNT(1) count FROM products p JOIN product_categories pc ON p.category = pc.sid ${where}`;
@@ -22,9 +22,10 @@ router.get("/list/api", async (req, res) => {
   // console.log(count);
 
   // 每頁內容
-  const sql_data = `SELECT p.* FROM products p JOIN product_categories pc ON p.category = pc.sid WHERE on_sale = 1 ${where} LIMIT ${
+  const sql_data = `SELECT p.* FROM products p JOIN product_categories pc ON p.category = pc.sid ${where} LIMIT ${
     perPage * (nowPage - 1)
   } ,${perPage}`;
+  // console.log(sql_data);
 
   const [rows] = await db.query(sql_data);
   // console.log({rows});
